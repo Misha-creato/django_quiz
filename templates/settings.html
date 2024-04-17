@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <form class="settings-form">
+                <h2 class="text-center">Настройки</h2>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Имя пользователя</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Новый пароль</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">Подтвердите пароль</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                </div>
+                <div class="mb-3 text-center">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
