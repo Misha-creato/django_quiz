@@ -1,24 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {{response}}
+
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <form method="post" class="survey-form">
                 {% csrf_token %}
                 <h2 class="text-center">Ответить на опрос</h2>
                 <div class="mb-3">
-                    <label for="question1" class="form-label">Вопрос 1: Какую книгу вы предпочитаете читать?</label>
-                    <select class="form-select" id="question1" name="question1" required>
+                    <label for="question" class="form-label">{{servey.question}}</label>
+                    {% if user.is_authenticated %}
+                    <select class="form-select" id="question" name="question" required>
                         <option value="">Выберите вариант ответа</option>
-                        <option value="option1">Вариант 1</option>
-                        <option value="option2">Вариант 2</option>
-                        <option value="option3">Вариант 3</option>
+                        {% for option in servey.options %}
+                        <option value="{{option}}">{{option.title}}</option>
+                        {% endfor %}
                     </select>
+
+
                 </div>
-                <div class="mb-3 text-center">
-                    <button type="submit" class="btn btn-primary">Ответить</button>
-                </div>
+                {% if not user.email_confirmed %}
+                    <div class="mb-3 text-center">
+                        <button type="submit" class="btn btn-primary" disabled>Ответить</button>
+                    </div>
+                    {% else %}
+                    <div class="mb-3 text-center">
+                        <button type="submit" class="btn btn-primary">Ответить</button>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <p>Войдите в систему, чтобы иметь возможность голосовать:
+                        <a class="btn btn-primary" href="{%url 'login' %}">Войти</a>
+                    </p>
+                {% endif %}
+
             </form>
         </div>
     </div>
