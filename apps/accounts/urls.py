@@ -2,9 +2,9 @@ from django.urls import path
 from accounts.views import (
     RegisterView,
     LoginView,
+    LogoutView,
     EmailConfirmView,
-    profile_view,
-    settings_view,
+    SettingsView,
     stats_view,
 )
 
@@ -21,18 +21,18 @@ urlpatterns = [
         name='login',
     ),
     path(
-        'confirm/<str:email>/<str:token>/',
+        'logout/',
+        LogoutView.as_view(),
+        name='logout',
+    ),
+    path(
+        'confirm/<str:token>/',
         EmailConfirmView.as_view(),
         name='confirm',
     ),
     path(
-        'profile/',
-        profile_view,
-        name='profile',
-    ),
-    path(
         'settings/',
-        settings_view,
+        SettingsView.as_view(),
         name='settings',
     ),
     path(
