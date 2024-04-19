@@ -4,21 +4,24 @@
 
     <div class="row">
         <div class="col-md-8 offset-md-2">
+            {% if survey %}
+
             <form method="post" class="survey-form">
                 {% csrf_token %}
+
                 <h2 class="text-center">Ответить на опрос</h2>
+
                 <div class="mb-3">
-                    <label for="question" class="form-label">{{servey.question}}</label>
+                    <label for="option" class="form-label">{{survey.question}}</label>
                     {% if user.is_authenticated %}
-                    <select class="form-select" id="question" name="question" required>
+                    <select class="form-select" id="option" name="option" required>
                         <option value="">Выберите вариант ответа</option>
-                        {% for option in servey.options %}
-                        <option value="{{option}}">{{option.title}}</option>
+                        {% for option in survey.options.all %}
+                        <option value="{{option.id}}">{{option.title}}</option>
                         {% endfor %}
                     </select>
-
-
                 </div>
+
                 {% if not user.email_confirmed %}
                     <div class="mb-3 text-center">
                         <button type="submit" class="btn btn-primary" disabled>Ответить</button>
@@ -28,13 +31,24 @@
                         <button type="submit" class="btn btn-primary">Ответить</button>
                     </div>
                     {% endif %}
+
                     {% else %}
                     <p>Войдите в систему, чтобы иметь возможность голосовать:
-                        <a class="btn btn-primary" href="{%url 'login' %}">Войти</a>
+                        <a class="btn btn-primary" href="{% url 'login' %}">Войти</a>
                     </p>
-                {% endif %}
+
 
             </form>
+            {% endif %}
+            {% else %}
+            <p>Мы Вас обязательно спросим о чём-то интересном позже</p>
+            {% endif %}
+            {% if survey_stats %}
+            <p>Спасибо, Ваш выбор учтён, Вы можете просмотреть статистику по
+                <a href="{%url 'survey' survey_stats.id %}">ссылке</a>
+            </p>
+            {% endif %}
+
         </div>
     </div>
 

@@ -1,10 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+
+<p>Количество проголосовавших: {{survey.count_voted}}</p>
+<h2>{{ survey.question }}</h2>
+<h3>{{ survey.text }}</h3>
+{% for option in survey.options.all %}
+
+    <p>{{option.title}}: {{option.count_voted}}</p>
+
+{% endfor %}
+
+{% endblock %}
