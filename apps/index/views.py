@@ -10,7 +10,9 @@ class Index(View):
         user = request.user.id
         survey = Survey.objects.first()
         if user:
-            survey = Survey.objects.filter(~Q(options__users=user)).first()
+            survey = Survey.objects.filter(
+                ~Q(options__users=user)
+            ).prefetch_related('options').first()
         context = {
             'survey': survey
         }
@@ -24,9 +26,8 @@ class Index(View):
         option = request.POST['option']
         user = request.user
         user.options.add(option)
-        survey_stats = Survey.objects.filter(options__id=option).first()
         context = {
-            'survey_stats': survey_stats,
+            'survey_response': True,
         }
         return render(
             request=request,
