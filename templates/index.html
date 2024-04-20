@@ -2,54 +2,58 @@
 
 {% block content %}
 
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            {% if survey %}
-
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        {% if survey %}
             <form method="post" class="survey-form">
                 {% csrf_token %}
 
                 <h2 class="text-center">Ответить на опрос</h2>
 
                 <div class="mb-3">
-                    <label for="option" class="form-label">{{survey.question}}</label>
+                    <p class="text-center">Вопрос: <strong>{{survey.question}}</strong></p>
+                    <p class="text-center">Описание: {{survey.description}}</p>
                     {% if user.is_authenticated %}
-                    <select class="form-select" id="option" name="option" required>
-                        <option value="">Выберите вариант ответа</option>
-                        {% for option in survey.options.all %}
-                        <option value="{{option.id}}">{{option.title}}</option>
-                        {% endfor %}
-                    </select>
+                        <div class="d-flex flex-column">
+                            {% for option in survey.options.all %}
+                                <div class="form-check ">
+                                      <input class="form-check-input" type="radio" name="option" id="option_{{ option.id }}" value="{{ option.id }}" required>
+                                      <label class="form-check-label" for="option_{{ option.id }}">
+                                        {{ option.title }}
+                                      </label>
+                                </div>
+                            {% endfor %}
+                        </div>
                 </div>
 
-                {% if not user.email_confirmed %}
-                    <div class="mb-3 text-center">
-                        <button type="submit" class="btn btn-primary" disabled>Ответить</button>
-                    </div>
+                        {% if not user.email_confirmed %}
+                            <div class="mb-3 text-center">
+                                <button type="submit" class="btn btn-primary" disabled>Ответить</button>
+                            </div>
+                        {% else %}
+                            <div class="mb-3 text-center">
+                                <button type="submit" class="btn btn-primary">Ответить</button>
+                            </div>
+                        {% endif %}
+
                     {% else %}
-                    <div class="mb-3 text-center">
-                        <button type="submit" class="btn btn-primary">Ответить</button>
-                    </div>
+                        <p>Войдите в систему, чтобы иметь возможность голосовать:
+                            <a class="btn btn-primary" href="{% url 'login' %}">Войти</a>
+                        </p>
+
                     {% endif %}
-
-                    {% else %}
-                    <p>Войдите в систему, чтобы иметь возможность голосовать:
-                        <a class="btn btn-primary" href="{% url 'login' %}">Войти</a>
-                    </p>
-
-
             </form>
-            {% endif %}
-            {% else %}
-            <p>Мы Вас обязательно спросим о чём-то интересном позже</p>
-            {% endif %}
-            {% if survey_stats %}
-            <p>Спасибо, Ваш выбор учтён, Вы можете просмотреть статистику по
-                <a href="{%url 'survey' survey_stats.id %}">ссылке</a>
-            </p>
-            {% endif %}
+        {% else %}
+            <h3>Мы Вас обязательно спросим о чём-то интересном позже.</h3>
+        {% endif %}
 
-        </div>
+        {% if survey_response %}
+            <h3>Спасибо, Ваш выбор учтён, Вы можете просмотреть статистику по
+                <a href="{% url 'stats' %}">ссылке</a>
+            </h3>
+        {% endif %}
+
     </div>
+</div>
 
 {% endblock %}
