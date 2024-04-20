@@ -9,12 +9,12 @@ from django.contrib.auth import (
 from django.core.mail import send_mail
 from django.urls import reverse
 
-from users.models import CustomUser as User
+from users.models import CustomUser
 
 
 def create_user(request, data):
     try:
-        user = User.objects.create_user(
+        user = CustomUser.objects.create_user(
             email=data['email'],
             password=data['password1'],
         )
