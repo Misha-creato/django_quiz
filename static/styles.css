@@ -42,3 +42,7 @@
             border-radius: 5px;
             margin-top: 50px;
         }
+
+.hiddenRow {
+    padding: 0 !important;
+}
