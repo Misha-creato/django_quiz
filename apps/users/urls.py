@@ -5,7 +5,7 @@ from users.views import (
     LogoutView,
     EmailConfirmView,
     SettingsView,
-    stats_view,
+    StatsView,
 )
 
 
@@ -37,7 +37,7 @@ urlpatterns = [
     ),
     path(
         'stats/',
-        stats_view,
+        StatsView.as_view(),
         name='stats',
     ),
 ]
