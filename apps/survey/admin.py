@@ -1,16 +1,17 @@
 from django.contrib import admin
+
 from survey.models import (
     Survey,
     Option,
 )
 
 
-class OptionInline(admin.TabularInline):
+class OptionInline(admin.StackedInline):
     model = Option
-    extra = 3
+    extra = 1
     fields = (
-        'title',
         'order',
+        'title',
     )
 
 
