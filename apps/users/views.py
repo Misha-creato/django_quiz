@@ -1,22 +1,25 @@
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import logout
 
+from django.db.models import F
 from django.views import View
 from django.shortcuts import (
     render,
     redirect,
 )
 
-from users.models import CustomUser as User
+from users.models import CustomUser
 from users.forms import CustomUserCreationForm
 from users.services import (
     create_user,
     is_user_logged_in,
     set_form_error_messages,
 )
+
+from survey.models import Survey
 
 
 class RegisterView(View):
@@ -74,7 +77,7 @@ class LogoutView(LoginRequiredMixin, View):
 
 class EmailConfirmView(View):
     def get(self, request, url_hash):
-        user = User.objects.filter(url_hash=url_hash)
+        user = CustomUser.objects.filter(url_hash=url_hash)
         if user.exists():
             user = user.first()
             user.email_confirmed = True
@@ -112,22 +115,28 @@ class SettingsView(LoginRequiredMixin, View):
                 request=request,
                 user=user,
             )
-            return render(
+        else:
+            set_form_error_messages(
                 request=request,
-                template_name='settings.html',
+                form=form,
             )
-        set_form_error_messages(
-            request=request,
-            form=form,
-        )
         return render(
             request=request,
             template_name='settings.html',
         )
 
 
-def stats_view(request): # в разработке
-    return render(
-        request=request,
-        template_name='stats.html',
-    )
+class StatsView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        user = request.user.id
+        surveys = (Survey.objects.filter(options__users=user)
+                   .annotate(user_answer=F('options__title'))
+                   .prefetch_related('options'))
+        context = {
+            'surveys': surveys
+        }
+        return render(
+            request=request,
+            template_name='stats.html',
+            context=context,
+        )
