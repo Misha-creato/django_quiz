@@ -9,10 +9,11 @@ from django.contrib.auth import (
 from django.core.mail import send_mail
 from django.urls import reverse
 
+from config.settings import EMAIL_HOST_USER
 from users.models import CustomUser
 
 
-def create_user(request, data):
+def create_and_return_user(request, data):
     try:
         user = CustomUser.objects.create_user(
             email=data['email'],
@@ -22,17 +23,17 @@ def create_user(request, data):
             request=request,
             message='Вы успешно зарегистрировались'
         )
+        return user
     except Exception as exc:
         print(f'Не удалось создать пользователя {exc}')
         messages.error(
             request=request,
             message='Возникла ошибка при создании пользователя, пожалуйста, попробуйте позже'
         )
-    else:
-        send_confirmation_email(request=request, user=user)
+        return None
 
 
-def send_confirmation_email(request, user):
+def send_mail_to_user(request, user, password_reset=False):
     url_hash = get_user_url_hash(user=user)
     url = request.build_absolute_uri(reverse('confirm', args=(url_hash,)))
 
@@ -41,7 +42,14 @@ def send_confirmation_email(request, user):
         f'Добро пожаловать на наш сайт!\n'
         f'Пожалуйста, подтвердите свой адрес электронной почты, перейдя по ссылке:\n{url}'
     )
-    send_mail(subject, message, 'example@gmail.com', [user.email])
+    if password_reset:
+        url = request.build_absolute_uri(reverse('password_reset', args=(url_hash,)))
+        subject = 'Восстановление пароля'
+        message = (
+            f'Восстановления пароля на сайте\n'
+            f'Чтобы сбросить пароль на сайте, перейдите по ссылке:\n{url}'
+        )
+    send_mail(subject, message, EMAIL_HOST_USER, [user.email])
 
 
 def is_user_logged_in(request, data):
