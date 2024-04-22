@@ -1,0 +1,17 @@
+[
+  {
+    "email": "test1@example.com",
+    "password": "password123",
+    "expected_result": true
+  },
+  {
+    "email": "test1@example.com",
+    "password": "wrong_password",
+    "expected_result": false
+  },
+  {
+    "email": "notregistered@example.com",
+    "password": "password123",
+    "expected_result": false
+  }
+]
