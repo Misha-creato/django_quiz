@@ -1,6 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import (
+    render,
+    redirect,
+)
 from django.views import View
 from django.db.models import Q
+from django.contrib import messages
 
 from survey.models import Survey
 
@@ -26,11 +30,8 @@ class Index(View):
         option = request.POST['option']
         user = request.user
         user.options.add(option)
-        context = {
-            'survey_response': True,
-        }
-        return render(
+        messages.success(
             request=request,
-            template_name='index.html',
-            context=context,
+            message='Спасибо, Ваш выбор учтён. Вы можете просмотреть статистику в профиле.',
         )
+        return redirect('index')
