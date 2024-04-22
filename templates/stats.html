@@ -1,54 +1,47 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<h3>Количество пройденных опросов: {{surveys.count}}</h3>
-
-<table class="table mt-5">
-    <thead>
-    <tr>
-        <th scope="col">Статистика</th>
-        <th scope="col">Опрос</th>
-        <th scope="col">Количество проголосовавших</th>
-        <th scope="col">Ваш ответ</th>
-    </tr>
-    </thead>
-
-    <tbody>
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h3>Количество пройденных опросов: {{surveys.count}}</h3>
         {% for survey in surveys %}
-        <tr data-bs-toggle="collapse" data-bs-target="#demo1" class="accordion-toggle">
-            <td>
-                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#survey{{survey.id}}"
-                        aria-expanded="false" aria-controls="collapseExample">Показать</button>
-            </td>
-            <td>{{survey.question}}</td>
-            <td>{{survey.count_voted}}</td>
-            <td>{{survey.user_answer}}</td>
-        </tr>
-            <tr>
-                <td colspan="12" class="hiddenRow">
-                    <div class="collapse" id="survey{{survey.id}}">
-                        <table class="table table-striped">
-                            <thead>
-                            <tr class="info">
-                                <th>Вариант ответа</th>
-                                <th>Голосов</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for option in survey.options.all %}
-                                <tr>
-                                    <td>{{option.title}}</td>
-                                    <td>{{option.count_voted}}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+            <form class="survey-form">
+
+
+                <div class="mb-3">
+                    <p class="text-center">Вопрос: <strong>{{survey.question}}</strong></p>
+                    <p class="text-center">Описание:
+                        {% if survey.description %}
+                        {{survey.description}}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </p>
+                    <div class="d-flex flex-column">
+                        {% for option in survey.options.all %}
+                            <div class="form-check d-flex justify-content-between">
+                                <div>
+                                    <input class="form-check-input" type="radio" name="option" id="option_{{ option.id }}"
+                                       style="opacity: 1;"
+                                       disabled
+                                       {% if option.title == survey.user_answer %}
+                                       checked
+                                       {% endif %}
+                                    >
+                                    <label class="form-check-label" for="option_{{ option.id }}" style="opacity: 1; width: 100%">
+                                        {{ option.title }}
+                                    </label>
+                                </div>
+                                <div>{{option.count_voted}}</div>
+                            </div>
+                        {% endfor %}
                     </div>
-                </td>
-            </tr>
+                    <p class="text-center">Проголосовало: {{survey.count_voted}}</p>
+                </div>
+            </form>
         {% endfor %}
-    </tbody>
-</table>
+
+    </div>
+</div>
 
 {% endblock %}

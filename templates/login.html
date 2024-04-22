@@ -21,7 +21,11 @@
                 <div class="text-center">
                     Все еще нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a>
                 </div>
+                <div class="text-center">
+                    Забыли пароль? <a href="{% url 'password_reset_request' %}">Восстановить</a>
+                </div>
             </form>
         </div>
     </div>
+
 {% endblock %}

@@ -12,13 +12,20 @@
 
                 <div class="mb-3">
                     <p class="text-center">Вопрос: <strong>{{survey.question}}</strong></p>
-                    <p class="text-center">Описание: {{survey.description}}</p>
+                    <p class="text-center">Описание:
+                        {% if survey.description %}
+                        {{survey.description}}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </p>
                     {% if user.is_authenticated %}
                         <div class="d-flex flex-column">
                             {% for option in survey.options.all %}
                                 <div class="form-check ">
-                                      <input class="form-check-input" type="radio" name="option" id="option_{{ option.id }}" value="{{ option.id }}" required>
-                                      <label class="form-check-label" for="option_{{ option.id }}">
+                                      <input class="form-check-input" type="radio" name="option"
+                                             id="option_{{ option.id }}" value="{{ option.id }}" required>
+                                      <label class="form-check-label" for="option_{{ option.id }}" style="width: 100%">
                                         {{ option.title }}
                                       </label>
                                 </div>
@@ -45,12 +52,6 @@
             </form>
         {% else %}
             <h3>Мы Вас обязательно спросим о чём-то интересном позже.</h3>
-        {% endif %}
-
-        {% if survey_response %}
-            <h3>Спасибо, Ваш выбор учтён, Вы можете просмотреть статистику по
-                <a href="{% url 'stats' %}">ссылке</a>
-            </h3>
         {% endif %}
 
     </div>
