@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 import sys
 from pathlib import Path
-
 from django.contrib import messages
+
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,10 +24,9 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-zlt@yky7dns@%gqfozqi4(iy^fj)g0rob3^gw5&$yrn%xe(7+2'
-
+SECRET_KEY = config('SECRET_KEY', cast=str)
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = []
 
@@ -84,10 +84,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'servey',
-        'USER': 'test_user',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
+        'NAME': config('DB_NAME', cast=str),
+        'USER': config('DB_USER', cast=str),
+        'PASSWORD': config('DB_PASSWORD', cast=str),
+        'HOST': config('DB_HOST', cast=str),
         'PORT': '5432',
     }
 }
@@ -139,10 +139,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Emailing settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'example@gmail.com'
-EMAIL_HOST_PASSWORD = 'password'
-EMAIL_PORT = 587
+EMAIL_HOST = config('EMAIL_HOST', cast=str),
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str),
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str),
+EMAIL_PORT = config('EMAIL_PORT', cast=int),
 EMAIL_USE_TLS = True
 
 # Messages settings
