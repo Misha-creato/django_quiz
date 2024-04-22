@@ -6,8 +6,9 @@ from users.views import (
     EmailConfirmView,
     SettingsView,
     StatsView,
+    PasswordResetRequestView,
+    PasswordResetView,
 )
-
 
 urlpatterns = [
     path(
@@ -40,4 +41,15 @@ urlpatterns = [
         StatsView.as_view(),
         name='stats',
     ),
+    path(
+        'password_reset/request/',
+        PasswordResetRequestView.as_view(),
+        name='password_reset_request',
+    ),
+    path(
+        'password_reset/<str:url_hash>/',
+        PasswordResetView.as_view(),
+        name='password_reset',
+    ),
 ]
+
