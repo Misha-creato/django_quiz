@@ -1,8 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.forms import (
+    PasswordChangeForm,
+    SetPasswordForm,
+)
 
 from django.db.models import F
 from django.views import View
@@ -14,9 +17,10 @@ from django.shortcuts import (
 from users.models import CustomUser
 from users.forms import CustomUserCreationForm
 from users.services import (
-    create_user,
+    create_and_return_user,
     is_user_logged_in,
     set_form_error_messages,
+    send_mail_to_user,
 )
 
 from survey.models import Survey
@@ -33,10 +37,12 @@ class RegisterView(View):
         data = request.POST
         form = CustomUserCreationForm(data)
         if form.is_valid():
-            create_user(
+            user = create_and_return_user(
                 request=request,
                 data=data,
             )
+            if user is not None:
+                send_mail_to_user(request=request, user=user)
             return redirect('login')
         set_form_error_messages(
             request=request,
@@ -139,4 +145,79 @@ class StatsView(LoginRequiredMixin, View):
             request=request,
             template_name='stats.html',
             context=context,
+        )
+
+
+class PasswordResetRequestView(View):
+    def get(self, request, *args, **kwargs):
+        return render(
+            request=request,
+            template_name='password_reset.html',
+        )
+
+    def post(self, request, *args, **kwargs):
+        email = request.POST['email']
+        user = CustomUser.objects.filter(email=email)
+        if user.exists():
+            user = user.first()
+            send_mail_to_user(
+                request=request,
+                user=user,
+                password_reset=True,
+            )
+            messages.success(
+                request=request,
+                message='Письмо для сброса пароля отправлено. Проверьте свой почтовый ящик.',
+            )
+            form_sent = True
+        else:
+            messages.error(
+                request=request,
+                message='Пользователь с таким адресом электронной почты не найден.',
+            )
+            form_sent = False
+        context = {
+            'form_sent': form_sent,
+        }
+        return render(
+            request=request,
+            template_name='password_reset.html',
+            context=context,
+        )
+
+
+class PasswordResetView(View):
+    def get(self, request, url_hash):
+        user = CustomUser.objects.filter(url_hash=url_hash)
+        if user.exists():
+            return render(
+                request=request,
+                template_name='password_reset_form.html',
+            )
+        messages.error(
+            request=request,
+            message='Неверный токен',
+        )
+        return redirect('login')
+
+    def post(self, request, url_hash, **kwargs):
+        user = CustomUser.objects.filter(url_hash=url_hash).first()
+        form = SetPasswordForm(user, request.POST)
+        if form.is_valid():
+            user.url_hash = ''
+            user.save()
+            form.save()
+            messages.success(
+                request=request,
+                message='Пароль успешно изменен',
+            )
+            return redirect('login')
+        else:
+            set_form_error_messages(
+                request=request,
+                form=form,
+            )
+        return render(
+            request=request,
+            template_name='password_reset_form.html',
         )
