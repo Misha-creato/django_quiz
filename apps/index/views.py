@@ -9,14 +9,12 @@ from django.contrib import messages
 from survey.models import Survey
 
 
-class Index(View):
+class IndexView(View):
     def get(self, request, *args, **kwargs):
         user = request.user.id
-        survey = Survey.objects.first()
-        if user:
-            survey = Survey.objects.filter(
-                ~Q(options__users=user)
-            ).prefetch_related('options').first()
+        survey = Survey.objects.filter(
+            ~Q(options__users=user) | Q()
+        ).prefetch_related('options').first()
         context = {
             'survey': survey
         }
