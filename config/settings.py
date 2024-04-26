@@ -14,8 +14,6 @@ import sys
 from pathlib import Path
 from django.contrib import messages
 
-from decouple import config
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
@@ -24,9 +22,13 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', cast=str)
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY', 'django-insecure-zlt@yky7dns@%gqfozqi4(iy^fj)g0rob3^gw5&$yrn%xe(7+2'
+)
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', cast=bool)
+DEBUG = os.environ.get(
+    'DEBUG', True
+)
 
 ALLOWED_HOSTS = []
 
@@ -81,13 +83,26 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DB_NAME = os.environ.get(
+    'DB_NAME', 'servey'
+)
+DB_USER = os.environ.get(
+    'DB_USER', 'test_user'
+)
+DB_PASSWORD = os.environ.get(
+    'DB_PASSWORD', '123456'
+)
+DB_HOST = os.environ.get(
+    'DB_HOST', 'localhost'
+)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': config('DB_NAME', cast=str),
-        'USER': config('DB_USER', cast=str),
-        'PASSWORD': config('DB_PASSWORD', cast=str),
-        'HOST': config('DB_HOST', cast=str),
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
         'PORT': '5432',
     }
 }
@@ -138,11 +153,21 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Emailing settings
+
+SEND_EMAILS = False
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', cast=str),
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str),
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str),
-EMAIL_PORT = config('EMAIL_PORT', cast=int),
+EMAIL_HOST = os.environ.get(
+    'EMAIL_HOST', 'smtp.gmail.com'
+)
+EMAIL_HOST_USER = os.environ.get(
+    'EMAIL_HOST_USER', 'example@gmail.com'
+)
+EMAIL_HOST_PASSWORD = os.environ.get(
+    'EMAIL_HOST_PASSWORD', 'password'
+)
+EMAIL_PORT = os.environ.get(
+    'EMAIL_PORT', 587
+)
 EMAIL_USE_TLS = True
 
 # Messages settings
