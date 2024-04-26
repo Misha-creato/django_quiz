@@ -1,13 +1,14 @@
 from django.contrib import messages
-from django.contrib.auth import logout
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import (
+    logout,
+    update_session_auth_hash,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import (
     PasswordChangeForm,
     SetPasswordForm,
 )
 
-from django.db.models import F
 from django.views import View
 from django.shortcuts import (
     render,
@@ -42,13 +43,18 @@ class RegisterView(View):
                 data=data,
             )
             if user is not None:
-                send_mail_to_user(request=request, user=user)
+                send_mail_to_user(
+                    request=request,
+                    user=user,
+                    action='confirm_email',
+                )
             return redirect('login')
         set_form_error_messages(
             request=request,
             form=form,
         )
         return render(
+            status=400,
             request=request,
             template_name='register.html',
         )
@@ -70,6 +76,7 @@ class LoginView(View):
             message='Неправильные адрес электронной почты или пароль',
         )
         return render(
+            status=400,
             request=request,
             template_name='login.html',
         )
@@ -87,7 +94,7 @@ class EmailConfirmView(View):
         if user.exists():
             user = user.first()
             user.email_confirmed = True
-            user.url_hash = ''
+            user.url_hash = None
             user.save()
             messages.success(
                 request=request,
@@ -135,9 +142,7 @@ class SettingsView(LoginRequiredMixin, View):
 class StatsView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user = request.user.id
-        surveys = (Survey.objects.filter(options__users=user)
-                   .annotate(user_answer=F('options__title'))
-                   .prefetch_related('options'))
+        surveys = Survey.objects.filter(options__users=user).prefetch_related('options')
         context = {
             'surveys': surveys
         }
@@ -163,7 +168,7 @@ class PasswordResetRequestView(View):
             send_mail_to_user(
                 request=request,
                 user=user,
-                password_reset=True,
+                action='password_reset',
             )
             messages.success(
                 request=request,
@@ -204,7 +209,7 @@ class PasswordResetView(View):
         user = CustomUser.objects.filter(url_hash=url_hash).first()
         form = SetPasswordForm(user, request.POST)
         if form.is_valid():
-            user.url_hash = ''
+            user.url_hash = None
             user.save()
             form.save()
             messages.success(
