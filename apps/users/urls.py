@@ -1,4 +1,5 @@
 from django.urls import path
+
 from users.views import (
     RegisterView,
     LoginView,
@@ -27,9 +28,9 @@ urlpatterns = [
         name='logout',
     ),
     path(
-        'confirm/<str:url_hash>/',
+        'confirm_email/<str:url_hash>/',
         EmailConfirmView.as_view(),
-        name='confirm',
+        name='confirm_email',
     ),
     path(
         'settings/',
