@@ -24,8 +24,8 @@
                                     <input class="form-check-input" type="radio" name="option" id="option_{{ option.id }}"
                                        style="opacity: 1;"
                                        disabled
-                                       {% if option.title == survey.user_answer %}
-                                       checked
+                                       {% if user in option.users.all %}
+                                           checked
                                        {% endif %}
                                     >
                                     <label class="form-check-label" for="option_{{ option.id }}" style="opacity: 1; width: 100%">
