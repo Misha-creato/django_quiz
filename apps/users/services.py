@@ -1,3 +1,5 @@
+import json
+import os
 import uuid
 
 from django.contrib import messages
@@ -9,8 +11,15 @@ from django.contrib.auth import (
 from django.core.mail import send_mail
 from django.urls import reverse
 
-from config.settings import EMAIL_HOST_USER
+from config.settings import (
+    EMAIL_HOST_USER,
+    SEND_EMAILS,
+)
+
 from users.models import CustomUser
+
+
+CUR_DIR = os.path.dirname(__file__)
 
 
 def create_and_return_user(request, data):
@@ -33,23 +42,20 @@ def create_and_return_user(request, data):
         return None
 
 
-def send_mail_to_user(request, user, password_reset=False):
+def send_mail_to_user(request, user, action):
     url_hash = get_user_url_hash(user=user)
-    url = request.build_absolute_uri(reverse('confirm', args=(url_hash,)))
+    url = request.build_absolute_uri(reverse(action, args=(url_hash,)))
 
-    subject = 'Подтверждение адреса электронной почты'
-    message = (
-        f'Добро пожаловать на наш сайт!\n'
-        f'Пожалуйста, подтвердите свой адрес электронной почты, перейдя по ссылке:\n{url}'
-    )
-    if password_reset:
-        url = request.build_absolute_uri(reverse('password_reset', args=(url_hash,)))
-        subject = 'Восстановление пароля'
-        message = (
-            f'Восстановления пароля на сайте\n'
-            f'Чтобы сбросить пароль на сайте, перейдите по ссылке:\n{url}'
-        )
-    send_mail(subject, message, EMAIL_HOST_USER, [user.email])
+    with open(f'{CUR_DIR}/mail_messages/{action}.json') as file:
+        data = json.load(file)
+
+    subject = data['subject']
+    message = data['message'].format(url=url)
+
+    if SEND_EMAILS:
+        send_mail(subject, message, EMAIL_HOST_USER, [user.email])
+    else:
+        print('Отправка писем отключена')
 
 
 def is_user_logged_in(request, data):
