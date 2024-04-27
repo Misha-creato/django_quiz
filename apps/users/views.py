@@ -16,7 +16,11 @@ from django.shortcuts import (
 )
 
 from users.models import CustomUser
-from users.forms import CustomUserCreationForm
+from users.forms import (
+    CustomUserCreationForm,
+    LoginForm,
+    PasswordResetRequestForm,
+)
 from users.services import (
     create_and_return_user,
     is_user_logged_in,
@@ -69,14 +73,23 @@ class LoginView(View):
 
     def post(self, request, *args, **kwargs):
         data = request.POST
-        if is_user_logged_in(request=request, data=data):
-            return redirect('index')
-        messages.error(
-            request=request,
-            message='Неправильные адрес электронной почты или пароль',
-        )
+        form = LoginForm(data)
+        if form.is_valid():
+            if is_user_logged_in(request=request, data=data):
+                return redirect('index')
+            messages.error(
+                request=request,
+                message='Неправильные адрес электронной почты или пароль',
+            )
+            status = 401
+        else:
+            set_form_error_messages(
+                request=request,
+                form=form,
+            )
+            status = 400
         return render(
-            status=400,
+            status=status,
             request=request,
             template_name='login.html',
         )
@@ -128,12 +141,15 @@ class SettingsView(LoginRequiredMixin, View):
                 request=request,
                 user=user,
             )
+            status = 200
         else:
             set_form_error_messages(
                 request=request,
                 form=form,
             )
+            status = 400
         return render(
+            status=status,
             request=request,
             template_name='settings.html',
         )
@@ -161,30 +177,40 @@ class PasswordResetRequestView(View):
         )
 
     def post(self, request, *args, **kwargs):
-        email = request.POST['email']
-        user = CustomUser.objects.filter(email=email)
-        if user.exists():
-            user = user.first()
-            send_mail_to_user(
-                request=request,
-                user=user,
-                action='password_reset',
-            )
-            messages.success(
-                request=request,
-                message='Письмо для сброса пароля отправлено. Проверьте свой почтовый ящик.',
-            )
-            form_sent = True
+        form = PasswordResetRequestForm(request.POST)
+        form_sent = False
+        status = 400
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = CustomUser.objects.filter(email=email)
+            if user.exists():
+                user = user.first()
+                send_mail_to_user(
+                    request=request,
+                    user=user,
+                    action='password_reset',
+                )
+                messages.success(
+                    request=request,
+                    message='Письмо для сброса пароля отправлено. Проверьте свой почтовый ящик.',
+                )
+                form_sent = True
+                status = 200
+            else:
+                messages.error(
+                    request=request,
+                    message='Пользователь с таким адресом электронной почты не найден.',
+                )
         else:
-            messages.error(
+            set_form_error_messages(
                 request=request,
-                message='Пользователь с таким адресом электронной почты не найден.',
+                form=form,
             )
-            form_sent = False
         context = {
             'form_sent': form_sent,
         }
         return render(
+            status=status,
             request=request,
             template_name='password_reset.html',
             context=context,
@@ -209,8 +235,7 @@ class PasswordResetView(View):
         user = CustomUser.objects.filter(url_hash=url_hash).first()
         form = SetPasswordForm(user, request.POST)
         if form.is_valid():
-            user.url_hash = None
-            user.save()
+            form.user.url_hash = None
             form.save()
             messages.success(
                 request=request,
@@ -223,6 +248,7 @@ class PasswordResetView(View):
                 form=form,
             )
         return render(
+            status=400,
             request=request,
             template_name='password_reset_form.html',
         )
