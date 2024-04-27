@@ -43,6 +43,6 @@ class IndexViewTests(TestCase):
         )
 
         messages = list(response.wsgi_request._messages)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), 'Спасибо, Ваш выбор учтён. Вы можете просмотреть статистику в профиле.')
-        self.assertEqual(response.status_code, 302)

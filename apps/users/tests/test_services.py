@@ -33,8 +33,6 @@ class ServiceTests(TestCase):
             with open(f'{self.path}/is_user_logged_in_{status}_request.json') as file:
                 data = json.load(file)
 
-            with open(f'{self.path}/is_user_logged_in_{status}_response.json') as file:
-                response_status = json.load(file)
-
             user_logged = is_user_logged_in(request, data)
-            self.assertEqual(response_status, user_logged)
+
+            self.assertEqual(user_logged, status, msg=status)
