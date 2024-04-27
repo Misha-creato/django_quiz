@@ -4,7 +4,7 @@ from django.contrib.auth.forms import (
 
 from django import forms
 
-from users.models import CustomUser as User
+from users.models import CustomUser
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -13,9 +13,25 @@ class CustomUserCreationForm(UserCreationForm):
     )
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = (
             'email',
             'password1',
             'password2',
         )
+
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(
+        required=True,
+    )
+    password = forms.CharField(
+        required=True,
+        widget=forms.PasswordInput(),
+    )
+
+
+class PasswordResetRequestForm(forms.Form):
+    email = forms.EmailField(
+        required=True,
+    )
