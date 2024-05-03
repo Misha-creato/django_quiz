@@ -8,15 +8,13 @@
             <form method="post" class="survey-form">
                 {% csrf_token %}
 
-                <h2 class="text-center">Ответить на опрос</h2>
+                <h2 class="text-center">{{survey.question}}</h2>
 
                 <div class="mb-3">
-                    <p class="text-center">Вопрос: <strong>{{survey.question}}</strong></p>
-                    <p class="text-center">Описание:
+                    <p class="text-center">
                         {% if survey.description %}
                         {{survey.description}}
-                        {% else %}
-                        -
+
                         {% endif %}
                     </p>
                     {% if user.is_authenticated %}
@@ -44,9 +42,10 @@
                         {% endif %}
 
                     {% else %}
-                        <p>Войдите в систему, чтобы иметь возможность голосовать:
-                            <a class="btn btn-primary" href="{% url 'login' %}">Войти</a>
+                        <p class="text-center">Войдите в систему, чтобы иметь возможность голосовать:
                         </p>
+                <p class="text-center"><a class="btn btn-primary center" href="{% url 'login' %}">Войти</a></p>
+
 
                     {% endif %}
             </form>
