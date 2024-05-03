@@ -53,7 +53,10 @@ def send_mail_to_user(request, user, action):
     message = data['message'].format(url=url)
 
     if SEND_EMAILS:
-        send_mail(subject, message, EMAIL_HOST_USER, [user.email])
+        try:
+            send_mail(subject, message, EMAIL_HOST_USER, [user.email])
+        except Exception as exc:
+            print('Произошла ошибка при отправке пользователя')
     else:
         print('Отправка писем отключена')
 
