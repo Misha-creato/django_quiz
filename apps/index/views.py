@@ -12,9 +12,12 @@ from survey.models import Survey
 class IndexView(View):
     def get(self, request, *args, **kwargs):
         user = request.user.id
-        survey = Survey.objects.filter(
-            ~Q(options__users=user) | Q()
-        ).prefetch_related('options').first()
+        if user:
+            survey = Survey.objects.filter(
+                ~Q(options__users=user)
+            ).prefetch_related('options').first()
+        else:
+            survey = Survey.objects.first()
         context = {
             'survey': survey
         }
