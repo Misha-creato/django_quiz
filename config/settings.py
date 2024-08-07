@@ -163,7 +163,7 @@ EMAIL_HOST_USER = os.environ.get(
     'EMAIL_HOST_USER', 'example@gmail.com'
 )
 EMAIL_HOST_PASSWORD = os.environ.get(
-    'EMAIL_HOST_PASSWORD', 'password'
+    'EMAIL_HOST_PASSWORD', 'example_password'
 )
 EMAIL_PORT = os.environ.get(
     'EMAIL_PORT', 587
